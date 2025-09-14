@@ -25,6 +25,8 @@ repos:
       - id: mypy
         args: []
         additional_dependencies: &mypy_deps
+          - types-PyYAML
+          - types-atheris
           - types-tqdm
           - tomli >= 0.2.6, < 2.0.0
           - click >= 8.2.0
@@ -33,6 +35,8 @@ repos:
           - packaging >= 22.0
           - platformdirs >= 2.1.0
           - pytokens >= 0.1.10
+          - pytest
+          - hypothesis
           - aiohttp >= 3.7.4
           - types-commonmark
           - urllib3
