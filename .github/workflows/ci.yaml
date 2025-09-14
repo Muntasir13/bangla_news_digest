@@ -60,18 +60,18 @@ jobs:
 
       - name: Run format check
         run: |
-          black --check .
-          isort --check-only .
+          poetry run black --check .
+          poetry run isort --check-only .
 
       - name: Lint
         run: |
-          ruff check src tests
-          ruff format src tests
+          poetry run ruff check src tests
+          poetry run ruff format src tests
 
       - name: Typecheck
         run: |
-          mypy --install-types --non-interactive
-          mypy src tests
+          poetry run mypy --install-types --non-interactive
+          poetry run mypy src tests
 
   test:
     runs-on: ${{ matrix.os }}
