@@ -76,8 +76,7 @@ jobs:
 
       - name: Typecheck
         run: |
-          poetry run mypy --install-types --non-interactive
-          poetry run mypy src tests
+          poetry run mypy --install-types --non-interactive src tests
 
   test:
     runs-on: ${{ matrix.os }}
