@@ -56,13 +56,13 @@ jobs:
           installer-parallel: true
           virtualenvs-path: .venv
 
-      - name: Activate environment
-        shell: bash
-        run: source .venv/bin/activate
-
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: poetry install --with dev --no-interaction
+
+      - name: Activate environment
+        shell: bash
+        run: source .venv/bin/activate
 
       - name: Run format check
         run: |
