@@ -52,9 +52,7 @@ jobs:
         uses: snok/install-poetry@v1
         with:
           virtualenvs-create: true
-          virtualenvs-in-project: true
           installer-parallel: true
-          virtualenvs-path: .venv
 
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
