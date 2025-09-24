@@ -49,6 +49,8 @@ repos:
           - fake-useragent
           - python-json-logger
           - undetected-chromedriver
+          - hydra-core
+          - omegaconf
   - repo: https://github.com/PyCQA/bandit
     rev: 1.8.6
     hooks:

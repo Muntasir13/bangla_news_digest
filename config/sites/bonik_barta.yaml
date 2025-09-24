@@ -1,0 +1,16 @@
+name: Daily Bonik Barta
+base_url: https://www.bonikbarta.com/
+url_list:
+  Bangladesh: https://bonikbarta.com/bangladesh
+  International: https://bonikbarta.com/international
+  Economy: https://bonikbarta.com/economy
+selectors:
+  news_link_list:
+  datetime:
+  title:
+  body:
+  cloudflare: null
+rate_limiter: 0
+# class to instantiate for this site (Hydra dynamic instantiation)
+_scraper_:
+  _target_: src.news_scrapers.bonik_barta_scraper.BonikBartaScraper

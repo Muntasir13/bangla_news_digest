@@ -2,17 +2,16 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from logging import Logger
 
+from src.conf import ScraperSiteConfig
 from src.webdriver_bridge import WebDriverAdapter
 
 
 class BaseScraper(ABC):
     """The Scraper Layer - abstract class"""
 
-    def __init__(self, driver_adapter: WebDriverAdapter, logger: Logger) -> None:
+    def __init__(self, driver_adapter: WebDriverAdapter, logger: Logger, site_config: ScraperSiteConfig) -> None:
         self.adapter = driver_adapter
-        self.name = ""
-        self.url = ""
-        self.rate_limiter = 0
+        self.site_config = site_config
         self.logger = logger
 
     def get_url(self, url: str) -> None:

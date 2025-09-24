@@ -57,18 +57,19 @@ def text_post_processing(text: str) -> str:
     )
 
 
-def extract_news_links_list(scraper: BaseScraper, max_retries: int = 5) -> list[str]:
+def extract_news_links_list(scraper: BaseScraper, url: str, max_retries: int) -> list[str]:
     """Extracting news links list. This method is purely for separating
     extraction and compilation of extracted news data
 
     Args:
         scraper (BaseScraper): the scraper to use for extraction
-        max_retries (int, optional): max retries for news links extraction. Defaults to 5.
+        url (str): the url from which news links are to be extracted. There are multiple sources
+        max_retries (int, optional): max retries for news links extraction.
 
     Returns:
         list[str]: the news links list
     """
-    scraper.get_url(scraper.url)
+    scraper.get_url(url)
     news_links = []
     for _ in range(max_retries):
         try:
@@ -107,12 +108,12 @@ def compile_extracted_data(scraper: BaseScraper, news_links: list[str], vault_lo
         list[dict[str, str]]: news data compiled into a list. Each entry contains
         a title, body and link of each news
     """
-    logger.info(f"{len(news_links)} news links found for {scraper.name}")
+    logger.info(f"{len(news_links)} news links found for {scraper.site_config.name}")
     today, yesterday = get_start_and_end_date(end_timedelta=3 if datetime.now().strftime("%A") == "Sunday" else 1)
 
     compiled_data: list[dict[str, str | list[str]]] = []
     for news_link in tqdm(news_links):
-        time.sleep(randint(1, scraper.rate_limiter) if scraper.rate_limiter > 0 else 0)  # nosec: B311
+        time.sleep(randint(1, scraper.site_config.rate_limiter) if scraper.site_config.rate_limiter > 0 else 0)  # nosec: B311
         try:
             title, date_and_time, body = extract_from_single_news_link(scraper=scraper, news_link=news_link)
             if not (date_and_time > yesterday) and (date_and_time <= today):
@@ -127,8 +128,8 @@ def compile_extracted_data(scraper: BaseScraper, news_links: list[str], vault_lo
                     "summary_points": summary_points,
                     "published_at": str(date_and_time),
                     "fingerprint": compute_news_article_fingerprint(title, body),
-                    "source": scraper.name,
-                    "source_url": scraper.url,
+                    "source": scraper.site_config.name,
+                    "source_url": scraper.site_config.base_url,
                     "scraped_at": str(datetime.now()).split(".")[0],  # removing the micro second part
                     "date": date.today().strftime("%B %d, %Y"),
                     "language": "English",
@@ -138,15 +139,15 @@ def compile_extracted_data(scraper: BaseScraper, news_links: list[str], vault_lo
         except Exception:
             logger.exception(
                 "Saving news link to vault",
-                extra={"scraper": scraper.name, "news_link": news_link},
+                extra={"scraper": scraper.site_config.name, "news_link": news_link},
             )
 
             save_to_vault(
-                website_name=scraper.name,
+                website_name=scraper.site_config.name,
                 vault_location=vault_location,
                 link_list=[news_link],
             )
-    logger.info(f"{len(compiled_data)} valid news data compiled from {scraper.name}")
+    logger.info(f"{len(compiled_data)} valid news data compiled from {scraper.site_config.name}")
     return compiled_data
 
 
@@ -166,13 +167,13 @@ def extract_from_unscraped(scraper: BaseScraper, vault_location: str, max_retrie
     """
     compiled_data: list[dict[str, str | list[str]]] = []
     for _ in range(max_retries):
-        unscraped_news_links = read_from_vault(website_name=scraper.name, vault_location=vault_location)
+        unscraped_news_links = read_from_vault(website_name=scraper.site_config.name, vault_location=vault_location)
         if unscraped_news_links == []:
-            logger.info(f"No unscraped news links found for {scraper.name}")
+            logger.info(f"No unscraped news links found for {scraper.site_config.name}")
             break
 
         # Clears all the unscraped news links under the website from vault
-        clear_from_vault(website_name=scraper.name, vault_location=vault_location)
+        clear_from_vault(website_name=scraper.site_config.name, vault_location=vault_location)
 
         # This step also adds any news link to the vault
         # that might have survived the extraction process
@@ -184,7 +185,7 @@ def extract_from_unscraped(scraper: BaseScraper, vault_location: str, max_retrie
             )
         )
 
-    unscraped_news_links = read_from_vault(website_name=scraper.name, vault_location=vault_location)
+    unscraped_news_links = read_from_vault(website_name=scraper.site_config.name, vault_location=vault_location)
     if unscraped_news_links != []:
         logger.warning(
             f"{len(unscraped_news_links)} still remain to be scraped even after {max_retries} retries",
@@ -193,30 +194,33 @@ def extract_from_unscraped(scraper: BaseScraper, vault_location: str, max_retrie
 
     logger.info(
         f"{len(compiled_data)} valid news data compiled from unscraped news links \
-            list found under '{scraper.name}' in vault"
+            list found under '{scraper.site_config.name}' in vault"
     )
     return compiled_data
 
 
-def data_extraction_pipeline(scraper: BaseScraper, vault_location: str) -> list[dict[str, str | list[str]]]:
+def data_extraction_pipeline(scraper: BaseScraper, vault_location: str, max_retries: int) -> list[dict[str, str | list[str]]]:
     """The total pipeline for extracting news data from each scraper
 
     Args:
         scraper (BaseScraper): the scraper to be used for extracting news data
         vault_location (str): the vault location for storing unscraped news links
+        max_retries (int): number of times to retry scraping news
 
     Returns:
         list[dict[str, str]]: the compiled news data after extraction
     """
-    news_links = extract_news_links_list(scraper=scraper)
-    logger.info(f"{len(news_links)} news links found for {scraper.name}")
-    compiled_data = compile_extracted_data(
-        scraper=scraper,
-        news_links=news_links,
-        vault_location=vault_location,
-    )
-    compiled_data += extract_from_unscraped(scraper=scraper, vault_location=vault_location)
-    del news_links  # destroying variable to save resource
+    compiled_data = []
+    for news_cat_url in scraper.site_config.url_list:
+        news_links = extract_news_links_list(scraper=scraper, url=news_cat_url, max_retries=max_retries)
+        logger.info(f"{len(news_links)} news links found for {scraper.site_config.name}")
+        compiled_data += compile_extracted_data(
+            scraper=scraper,
+            news_links=news_links,
+            vault_location=vault_location,
+        )
+        compiled_data += extract_from_unscraped(scraper=scraper, vault_location=vault_location)
+        del news_links  # destroying variable to save resource
     return compiled_data
 
 

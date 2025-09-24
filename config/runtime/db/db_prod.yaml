@@ -1,0 +1,13 @@
+driver: mysql
+host: mysql-1f588591-mohammadmuntasir96-a8a9.g.aivencloud.com
+port: 24224
+user: ${env:DB_USER, null}
+password: ${env:DB_PASS, null} # enforce via env / secret manager
+database_name: defaultdb
+pool:
+  size: 10
+  max_overflow: 20
+  recycle_time: 3600
+ssl:
+  mode: REQUIRED
+  ca_path: ${env:DB_SSL_CA_PATH, null}

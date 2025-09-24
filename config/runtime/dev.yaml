@@ -1,0 +1,8 @@
+defaults:
+  - _self_
+  - db: db_dev
+  - email: smtp_dev
+
+db_send: false
+email_send: false
+process_pools: 4

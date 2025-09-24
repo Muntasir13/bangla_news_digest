@@ -1,3 +1,4 @@
+from .logger_setup import configure_child_logging, init_logging
 from .other_utils import (
     compute_news_article_fingerprint,
     get_start_and_end_date,
@@ -15,4 +16,6 @@ __all__ = [
     "clear_from_vault",
     "read_from_vault",
     "save_to_vault",
+    "init_logging",
+    "configure_child_logging",
 ]

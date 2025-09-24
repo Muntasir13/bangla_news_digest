@@ -1,0 +1,32 @@
+defaults:
+  - _self_
+  - runtime: prod
+  - logging: logger
+  - webdriver: chrome
+
+max_retries: 5
+webdriver:
+  options:
+    headless: true
+    no-sandbox: true
+    disable-dev-shm-usage: true
+    disable-blink-features: AutomationControlled
+    enable-gpu-rasterization: true
+    page_load_strategy: eager
+  cdp_cmd:
+    Network.enable: {}
+    Network.setBlockedURLs:
+      urls:
+        - "*.png"
+        - "*.jpg"
+        - "*.css"
+        - "*/analytics.js"
+        - "*.woff2"
+        - "*googletagmanager.com/*"
+        - "*googlesyndication.com/*"
+        - "*googleads*"
+        - "*doubleclick.net/*"
+        - "*adservice.google.com/*"
+        - "*ads.pubmatic.com/*"
+        - "*adnxs.com/*"
+        - "*adsafeprotected.com/*"

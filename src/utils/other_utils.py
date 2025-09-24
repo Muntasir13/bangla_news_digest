@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from email.message import EmailMessage
 
 
+# TODO: Need to update
 def get_start_and_end_date(end_timedelta: int, today: bool = True, start_timedelta: float | None = None) -> tuple[datetime, datetime]:
     """As the method name suggests, we get start and end date.
 
