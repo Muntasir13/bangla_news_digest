@@ -208,19 +208,20 @@ def data_extraction_pipeline(scraper: BaseScraper, vault_location: str, max_retr
         max_retries (int): number of times to retry scraping news
 
     Returns:
-        list[dict[str, str]]: the compiled news data after extraction
+        list[dict[str, str | list[str]]]: the compiled news data after extraction
     """
-    compiled_data = []
+    compiled_data: list[dict[str, str | list[str]]] = []
     for news_cat_url in scraper.site_config.url_list:
-        news_links = extract_news_links_list(scraper=scraper, url=news_cat_url, max_retries=max_retries)
-        logger.info(f"{len(news_links)} news links found for {scraper.site_config.name}")
-        compiled_data += compile_extracted_data(
-            scraper=scraper,
-            news_links=news_links,
-            vault_location=vault_location,
-        )
-        compiled_data += extract_from_unscraped(scraper=scraper, vault_location=vault_location)
-        del news_links  # destroying variable to save resource
+        pass
+        # news_links = extract_news_links_list(scraper=scraper, url=news_cat_url, max_retries=max_retries)
+        # logger.info(f"{len(news_links)} news links found for {scraper.site_config.name}")
+        # compiled_data += compile_extracted_data(
+        #     scraper=scraper,
+        #     news_links=news_links,
+        #     vault_location=vault_location,
+        # )
+        # compiled_data += extract_from_unscraped(scraper=scraper, vault_location=vault_location)
+        # del news_links  # destroying variable to save resource
     return compiled_data
 
 

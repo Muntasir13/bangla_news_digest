@@ -10,4 +10,3 @@ class RuntimeConfig:
     email: EmailConfig
     db_send: bool
     email_send: bool
-    process_pools: int

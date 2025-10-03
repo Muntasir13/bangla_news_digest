@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from enum import Enum
 
 from .base_scraper import BaseScraper
@@ -9,8 +10,14 @@ from .prothom_alo_scraper import ProthomAloScraper
 __all__ = ["BaseScraper", "BonikBartaScraper", "DailyStarScraper", "JanakanthaScraper", "ProthomAloScraper"]
 
 
+@dataclass
+class ScraperDesc:
+    scraper_name: str
+    class_obj: type[BaseScraper]
+
+
 class ScraperEnum(Enum):
-    bonik_barta = "Daily Bonik Barta"
-    daily_star = "The Daily Star Bangla"
-    janakantha = "Daily Janakantha"
-    prothom_alo = "Prothom Alo"
+    bonik_barta = ScraperDesc(scraper_name="bonik_barta", class_obj=BonikBartaScraper)
+    daily_star = ScraperDesc(scraper_name="daily_star", class_obj=DailyStarScraper)
+    janakantha = ScraperDesc(scraper_name="janakantha", class_obj=JanakanthaScraper)
+    prothom_alo = ScraperDesc(scraper_name="prothom_alo", class_obj=ProthomAloScraper)

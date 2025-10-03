@@ -6,6 +6,7 @@ class DBPoolConfig:
     size: int
     max_overflow: int
     recycle_time: int
+    pre_ping: bool
 
 
 @dataclass
@@ -22,5 +23,6 @@ class DBConfig:
     user: str
     password: str
     database_name: str
+    url: str
     pool: DBPoolConfig
     ssl: DBSSLConfig

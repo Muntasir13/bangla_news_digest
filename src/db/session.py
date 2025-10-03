@@ -5,64 +5,34 @@ from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
+from src.conf import DBConfig
+
 
 # create_engine options are tuned for production (override via env if needed)
-def get_engine(
-    database_url: str,
-    pool_size: int,
-    max_overflow: int,
-    pool_recycle: int,
-    ssl_mode: str | None = None,
-    ssl_ca_path: str | None = None,
-    ssl_cert: str | None = None,
-    ssl_key: str | None = None,
-) -> Engine:
+def get_engine(cfg: DBConfig) -> Engine:
     connect_args = {}
-    if ssl_mode:
-        connect_args["ssl_mode"] = ssl_mode
-    if ssl_ca_path:
-        connect_args["ca"] = ssl_ca_path
-    if ssl_cert:
-        connect_args["cert"] = ssl_cert
-    if ssl_key:
-        connect_args["key"] = ssl_key
+    if cfg.ssl.mode:
+        connect_args["ssl_mode"] = cfg.ssl.mode
+    if cfg.ssl.ca_path:
+        connect_args["ca"] = cfg.ssl.ca_path
 
     return create_engine(
-        url=database_url,
-        pool_size=pool_size,
-        max_overflow=max_overflow,
-        pool_recycle=pool_recycle,
-        pool_pre_ping=True,
-        future=True,
+        url=cfg.url,
+        pool_size=cfg.pool.size,
+        max_overflow=cfg.pool.max_overflow,
+        pool_recycle=cfg.pool.recycle_time,
+        pool_pre_ping=cfg.pool.pre_ping,
         connect_args={"ssl": connect_args} if connect_args else {},
     )
 
 
 @contextmanager
-def get_session(
-    database_url: str,
-    pool_size: int,
-    max_overflow: int,
-    pool_recycle: int,
-    ssl_mode: str | None = None,
-    ssl_ca_path: str | None = None,
-    ssl_cert: str | None = None,
-    ssl_key: str | None = None,
-) -> Generator[Session]:
+def get_session(cfg: DBConfig) -> Generator[Session]:
     """Yield a SQLAlchemy Session and commit or rollback on exit."""
 
     # Create a Session factory bound to the engine
-    engine = get_engine(
-        database_url,
-        pool_size,
-        max_overflow,
-        pool_recycle,
-        ssl_mode,
-        ssl_ca_path,
-        ssl_cert,
-        ssl_key,
-    )
-    SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
+    engine = get_engine(cfg=cfg)
+    SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
     session = SessionLocal()
     try:
         yield session

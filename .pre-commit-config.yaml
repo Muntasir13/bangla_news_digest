@@ -28,6 +28,7 @@ repos:
           - types-PyYAML
           - types-atheris
           - types-tqdm
+          - celery-types
           - tomli >= 0.2.6, < 2.0.0
           - click >= 8.2.0
           # Click is intentionally out-of-sync with pyproject.toml
@@ -51,6 +52,7 @@ repos:
           - undetected-chromedriver
           - hydra-core
           - omegaconf
+          - celery
   - repo: https://github.com/PyCQA/bandit
     rev: 1.8.6
     hooks:

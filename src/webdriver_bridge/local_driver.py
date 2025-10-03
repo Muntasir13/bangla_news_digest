@@ -1,10 +1,8 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import cast
 
 import undetected_chromedriver as uc
 from fake_useragent import UserAgent
-from omegaconf import OmegaConf
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.firefox.service import Service as FirefoxService
@@ -38,9 +36,11 @@ class LocalDriverBaseClass(ABC):
 class ChromeLocalDriver(LocalDriverBaseClass):
     """Chrome local web driver class. All properties gained from parent web driver class"""
 
-    def _init_driver(self) -> WebDriver | uc.Chrome:
+    def __init__(self, config: WebDriverConfig) -> None:
+        super().__init__(config)
         self.__enable_network_filtering()
 
+    def _init_driver(self) -> WebDriver | uc.Chrome:
         options = uc.ChromeOptions()
         for config, cfg_val in self.driver_config.options.items():
             options.add_argument(f"--{config}={cfg_val}")
@@ -53,9 +53,27 @@ class ChromeLocalDriver(LocalDriverBaseClass):
         """This method will ensure that unnecessary content loading (CSS, PNG, JPG)
         does not reduce scraping speed.
         """
-        cdp_cmd_config = cast(dict[str, dict[str, list[str]]], OmegaConf.to_container(self.driver_config.cdp_cmd))
-        for cmd, cmd_args in cdp_cmd_config.items():
-            self.driver.execute_cdp_cmd(cmd, cmd_args)
+        self.driver.execute_cdp_cmd("Network.enable", {})
+        self.driver.execute_cdp_cmd(
+            "Network.setBlockedURLs",
+            {
+                "urls": [
+                    "*.png",
+                    "*.jpg",
+                    "*.css",
+                    "*/analytics.js",
+                    "*.woff2",
+                    "*googletagmanager.com/*",
+                    "*googlesyndication.com/*",
+                    "*googleads*",
+                    "*doubleclick.net/*",
+                    "*adservice.google.com/*",
+                    "*ads.pubmatic.com/*",
+                    "*adnxs.com/*",
+                    "*adsafeprotected.com/*",
+                ]
+            },
+        )
 
 
 class FirefoxLocalDriver(LocalDriverBaseClass):

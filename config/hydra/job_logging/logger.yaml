@@ -1,0 +1,31 @@
+version: 1
+disable_existing_loggers: false
+
+formatters:
+  default:
+    format: "%(asctime)s %(processName)s %(name)s %(levelname)s %(message)s"
+  json:
+    "()": pythonjsonlogger.json.JsonFormatter
+    fmt: "%(asctime)s %(processName)s %(name)s %(levelname)s %(message)s"
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: json
+    stream: ext://sys.stdout
+
+  file:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: INFO
+    formatter: json
+    filename: ${hydra:runtime.output_dir}/scraper.log
+    when: midnight
+    backupCount: 7
+queue:
+  # maxsize for multiprocessing.Queue (-1 = infinite)
+  maxsize: -1
+
+root:
+  level: INFO
+  handlers: [console, file]

@@ -19,7 +19,7 @@ class Base(DeclarativeBase):
 
 
 class NewsArticle(Base):
-    __tablename__ = "news_articles"
+    __tablename__ = "bd_news_digest_articles"
 
     id = Column(String(36), primary_key=True, unique=True, default=str(uuid4()))
     url = Column(String(512), nullable=False, unique=True)  # long enough for URLs
@@ -29,13 +29,16 @@ class NewsArticle(Base):
     published_at = Column(TIMESTAMP(timezone=True), nullable=True)
     source = Column(String(128), nullable=True)  # site identifier
     source_url = Column(String(512), nullable=True)  # site url
+    category = Column(String(50), nullable=True)
     scraped_at = Column(TIMESTAMP(timezone=True), nullable=False, default=func.now())
     language = Column(String(10), nullable=True)
 
     __table_args__ = (
         # Useful indexes
         Index("ix_articles_published_at", "published_at"),
+        Index("ix_articles_scraped_at", "scraped_at"),
         Index("ix_articles_source_published", "source", "published_at"),
+        Index("ix_articles_source_url", "source_url"),
         # MySQL-specific table options
         {
             "mysql_engine": "InnoDB",
@@ -45,4 +48,4 @@ class NewsArticle(Base):
     )
 
     def __repr__(self) -> str:
-        return f"<Article(id={self.id} url={self.url!r})>"
+        return f"<Article(id={self.id} source={self.source} category={self.category} url={self.url!r})>"

@@ -1,0 +1,30 @@
+broker:
+  url: ${oc.env:CELERY_BROKER_URL, ""}
+  heartbeat: 30
+  connection_max_retries: 10
+
+result_backend:
+  url: ${oc.env:CELERY_RESULT_BACKEND, ""} # using redis for result backend
+  socket_timeout: 5
+
+# sensible defaults for selenium tasks
+task_config:
+  max_time_limit: 600 # hard kill after 10 minutes
+  soft_time_limit: 540 # soft warning at 9 minutes
+  acks_late: true
+  reject_on_worker_lost: true
+  default_queue: default
+
+# worker tuning for Selenium heavy tasks
+worker:
+  pool: solo
+  concurrency: 1
+  max_tasks_per_child: 100 # recycle processes to avoid leaks
+  prefetch_multiplier: 1
+  hijack_root_logger: false
+  redirect_stdouts: false
+
+task_serializer: pickle
+result_serializer: json
+accept_content: ["json", "pickle"]
+enable_utc: false

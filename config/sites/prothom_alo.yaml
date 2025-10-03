@@ -1,17 +1,15 @@
-name: Prothom Alo
-base_url: https://www.prothomalo.com/
-url_list:
-  Bangladesh: https://www.prothomalo.com/bangladesh
-  Politics: https://www.prothomalo.com/politics
-  World: https://www.prothomalo.com/world
-  Business: https://www.prothomalo.com/business
-selectors:
-  news_link_list:
-  datetime:
-  title:
-  body:
-  cloudflare: null
-rate_limiter: 0
-# class to instantiate for this site (Hydra dynamic instantiation)
-_scraper_:
-  _target_: src.news_scrapers.prothom_alo_scraper.ProthomAloScraper
+prothom_alo:
+  name: Prothom Alo
+  base_url: https://www.prothomalo.com/
+  url_list:
+    Bangladesh: https://www.prothomalo.com/bangladesh
+    Politics: https://www.prothomalo.com/politics
+    World: https://www.prothomalo.com/world
+    Business: https://www.prothomalo.com/business
+  selectors:
+    news_link_list:
+    datetime:
+    title:
+    body:
+    cloudflare: null
+  rate_limiter: 0

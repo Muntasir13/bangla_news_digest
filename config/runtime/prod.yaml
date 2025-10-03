@@ -5,4 +5,3 @@ defaults:
 
 db_send: true
 email_send: true
-process_pools: 4

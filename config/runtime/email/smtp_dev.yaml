@@ -1,7 +1,7 @@
 host: smtp.example.com
 port: 587
-username: ${env:SMTP_USER, null}
-password: ${env:SMTP_PASS, null}
+username: ${oc.env:SMTP_USER, null}
+password: ${oc.env:SMTP_PASS, null}
 from_addr: mohammadmuntasir96@gmail.com
 to_addr:
   - mohammadmuntasir96@gmail.com

@@ -1,21 +1,19 @@
-name: Daily Janakantha
-base_url: https://www.dailyjanakantha.com/
-url_list:
-  National: https://www.dailyjanakantha.com/national/
-  Politics: https://www.dailyjanakantha.com/politics/
-  Bangladesh: https://www.dailyjanakantha.com/bangladesh/
-  International: https://www.dailyjanakantha.com/international/
-  Sports: https://www.dailyjanakantha.com/sports/
-  Economy: https://www.dailyjanakantha.com/economy/
-  Education: https://www.dailyjanakantha.com/education/
-  Migration: https://www.dailyjanakantha.com/migration/
-selectors:
-  news_link_list:
-  datetime:
-  title:
-  body:
-  cloudflare: null
-rate_limiter: 0
-# class to instantiate for this site (Hydra dynamic instantiation)
-_scraper_:
-  _target_: src.news_scrapers.janakantha_scraper.JanakanthaScraper
+janakantha:
+  name: Daily Janakantha
+  base_url: https://www.dailyjanakantha.com/
+  url_list:
+    National: https://www.dailyjanakantha.com/national/
+    Politics: https://www.dailyjanakantha.com/politics/
+    Bangladesh: https://www.dailyjanakantha.com/bangladesh/
+    International: https://www.dailyjanakantha.com/international/
+    Sports: https://www.dailyjanakantha.com/sports/
+    Economy: https://www.dailyjanakantha.com/economy/
+    Education: https://www.dailyjanakantha.com/education/
+    Migration: https://www.dailyjanakantha.com/migration/
+  selectors:
+    news_link_list:
+    datetime:
+    title:
+    body:
+    cloudflare: null
+  rate_limiter: 0

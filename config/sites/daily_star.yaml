@@ -1,16 +1,14 @@
-name: The Daily Star Bangla
-base_url: https://www.dailyjanakantha.com/
-url_list:
-  Bangladesh: https://bangla.thedailystar.net/news/bangladesh
-  International: https://bangla.thedailystar.net/international
-  Business: https://bangla.thedailystar.net/business
-selectors:
-  news_link_list:
-  datetime:
-  title:
-  body:
-  cloudflare: null
-rate_limiter: 0
-# class to instantiate for this site (Hydra dynamic instantiation)
-_scraper_:
-  _target_: src.news_scrapers.janakantha_scraper.JanakanthaScraper
+daily_star:
+  name: The Daily Star Bangla
+  base_url: https://bangla.thedailystar.net
+  url_list:
+    Bangladesh: https://bangla.thedailystar.net/news/bangladesh
+    International: https://bangla.thedailystar.net/international
+    Business: https://bangla.thedailystar.net/business
+  selectors:
+    news_link_list:
+    datetime:
+    title:
+    body:
+    cloudflare: null
+  rate_limiter: 0

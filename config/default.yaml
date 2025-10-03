@@ -1,10 +1,23 @@
 defaults:
   - _self_
   - runtime: prod
-  - logging: logger
   - webdriver: chrome
+  - celery: celery
+  - sites:
+      - bonik_barta
+      - daily_star
+      - janakantha
+      - prothom_alo
+  - override hydra/job_logging: logger
 
 max_retries: 5
+output_location:
+  raw: ${hydra:runtime.output_dir}/project_outputs/raw
+  processed: ${hydra:runtime.output_dir}/project_outputs/processed
+resource:
+  news_digest_template: ./resources/newsdigest_template.docx
+  vault: ./resources/fail_safe_vault.json
+
 webdriver:
   options:
     headless: true
@@ -13,20 +26,3 @@ webdriver:
     disable-blink-features: AutomationControlled
     enable-gpu-rasterization: true
     page_load_strategy: eager
-  cdp_cmd:
-    Network.enable: {}
-    Network.setBlockedURLs:
-      urls:
-        - "*.png"
-        - "*.jpg"
-        - "*.css"
-        - "*/analytics.js"
-        - "*.woff2"
-        - "*googletagmanager.com/*"
-        - "*googlesyndication.com/*"
-        - "*googleads*"
-        - "*doubleclick.net/*"
-        - "*adservice.google.com/*"
-        - "*ads.pubmatic.com/*"
-        - "*adnxs.com/*"
-        - "*adsafeprotected.com/*"
