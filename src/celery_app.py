@@ -4,8 +4,8 @@ from typing import Any, cast
 
 import hydra
 from celery import Celery
+from celery.apps.worker import Worker
 from celery.signals import after_setup_logger, after_setup_task_logger
-from celery.worker.worker import WorkController
 from dotenv import load_dotenv
 from omegaconf import DictConfig, OmegaConf
 
@@ -62,5 +62,5 @@ if __name__ == "__main__":
     load_dotenv()
     app = generate_celery_app()
     app.control.purge()
-    celery_worker = WorkController(app=app, hostname=f"worker_{datetime.now()}", loglevel="INFO")  # type: ignore
+    celery_worker = Worker(app=app, hostname=f"worker_{datetime.now()}", loglevel="INFO")  # type: ignore
     celery_worker.start()  # type: ignore

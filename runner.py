@@ -1,4 +1,3 @@
-import logging
 import os
 import time
 from datetime import date
@@ -12,7 +11,7 @@ from omegaconf import OmegaConf
 
 from src.celery_app import generate_celery_app
 from src.conf import ProjectConfig, ScraperSiteConfig, WebDriverConfig
-from src.db import ensure_tables, get_engine
+from src.db import ensure_tables, get_engine, save_scraped_items
 from src.news_scrapers import BaseScraper, ScraperEnum
 from src.pipelines import data_extraction_pipeline
 from src.utils import save_processsed_data, save_raw_data, send_email
@@ -27,7 +26,7 @@ def run_pipeline_and_queue_data(
     driver_config: dict,
     site_config: ScraperSiteConfig,
     vault_location: str,
-    max_retries: int = 5,
+    max_retries: int,
 ) -> list[dict[str, str | list[str]]]:
     logger = getLogger(__name__)
 
@@ -56,7 +55,7 @@ def main(cfg: ProjectConfig) -> None:
     start_time = time.time()
 
     # Logger Initialization
-    logger = logging.getLogger(__name__)
+    logger = getLogger(__name__)
     logger.info("Project Config Loaded")
     logger.info("Setting up the environment...")
 
@@ -82,19 +81,23 @@ def main(cfg: ProjectConfig) -> None:
         )
         for scraper in ScraperEnum
     )
+    logger.info("Environment Setup Completed")
+    logger.info("Initiating Scraping...")
+
     group_result = g.apply_async()
     results = group_result.get(timeout=60)  # blocks; like await
     compiled_data = []
     for data in results:
         compiled_data.extend(data)
-    print(compiled_data)
+    logger.info("News extraction completed.")
+    logger.info(f"All news data compiled. Total {len(compiled_data)} news found.")
 
     save_raw_data(
         data=compiled_data,
         save_location=cfg.output_location.raw,
         filename="bangla_news_digest.json",
     )
-    logger.info("Raw Data saved at outputs/")
+    logger.info(f"Raw Data saved at {cfg.output_location.raw}")
 
     save_processsed_data(
         data=compiled_data,
@@ -102,7 +105,11 @@ def main(cfg: ProjectConfig) -> None:
         filename=f"Bangla News Digest {date.today().strftime('%B %d, %Y')}.docx",
         template=cfg.resource.news_digest_template,
     )
-    logger.info("Processed Data saved at outputs/")
+    logger.info(f"Processed Data saved at {cfg.output_location.processed}")
+
+    if cfg.runtime.db_send:
+        inserted_articles = save_scraped_items(database_config=cfg.runtime.db, items=compiled_data)
+        logger.info(f"Processed Data saved at db. No. of articles saved: {inserted_articles}")
 
     if cfg.runtime.email_send:
         try:
@@ -135,6 +142,8 @@ def main(cfg: ProjectConfig) -> None:
                 f"Something went wrong. Exception found when sending email. \
                     The exception found: {e}. "
             )
+    else:
+        logger.warning("Email not sent to intended users.")
 
     logger.info(f"Time taken for total process: {round((time.time() - start_time) / 60, 2)} minutes")
     logger.info("System is shutting down...")

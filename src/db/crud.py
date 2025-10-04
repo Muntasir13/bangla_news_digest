@@ -15,6 +15,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from sqlalchemy.sql._typing import _DMLTableArgument
 
+from src.conf import DBConfig
+
 from .models import Base, NewsArticle
 from .session import get_session
 
@@ -175,19 +177,19 @@ def insert_articles_batch(
 
 
 # ---------- Convenience wrappers that manage sessions ----------
-def save_scraped_items(database_config: dict[str, Any], items: list[dict[str, Any]]) -> int:
+def save_scraped_items(database_config: DBConfig, items: list[dict[str, Any]]) -> int:
     """
     Convenience entrypoint: upsert (default) or insert items into DB.
     """
     if not items:
         return 0
-    with get_session(**database_config) as session:
+    with get_session(database_config) as session:
         return insert_articles_batch(session, items)
 
 
-def get_articles_by_start_and_end_date(database_config: dict[str, Any], start_date: date, end_date: date) -> list[dict[str, Any]]:
+def get_articles_by_start_and_end_date(database_config: DBConfig, start_date: date, end_date: date) -> list[dict[str, Any]]:
     news_articles = []
-    with get_session(**database_config) as session:
+    with get_session(database_config) as session:
         for day in (start_date + timedelta(n) for n in range((end_date - start_date).days)):
             news_articles.extend([article.__dict__ for article in get_article_by_date(session=session, search_datetime=day)])
     return news_articles

@@ -27,7 +27,7 @@ def init_logging(root_logger: logging.Logger) -> None:
 
     # File handler with daily rotation
     file_handler = TimedRotatingFileHandler(
-        filename=os.path.join("celery_app.log"),
+        filename=os.path.join("./outputs", "celery_app.log"),
         when="midnight",
         backupCount=7,  # keep one week of logs
         utc=True,
