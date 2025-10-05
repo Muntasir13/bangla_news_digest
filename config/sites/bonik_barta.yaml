@@ -6,9 +6,9 @@ bonik_barta:
     International: https://bonikbarta.com/international
     Economy: https://bonikbarta.com/economy
   selectors:
-    news_link_list:
-    datetime:
-    title:
-    body:
+    news_link_list: div.overflow-hidden div.grid div.px-4.h-full div.flex div.grow.group.relative.justify-between.gap-2.grid-cols-12.border-white div.order-2 h3.font-bold.break-words a
+    datetime: div.pb-4 div div.mb-4 div.flex.items-center button.font-normal.text-bb-text
+    title: div.pb-4 div div h2.font-bold.text-bb-title
+    body: div.pb-4 div div.flex.flex-col div div.mx-auto div.post-body div.mt-4 div.max-w-none.prose.mb-3.break-words.prose-xl p
     cloudflare: null
   rate_limiter: 0

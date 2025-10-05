@@ -44,6 +44,7 @@ def bangla_to_english_datetime_parsing(bd_date_and_time: str) -> str:
     time_map = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
     month_map = {
         "জানুয়ারি": "January",
+        "জানুয়ারি": "January",  # same but different. check utf code
         "ফেব্রুয়ারি": "February",
         "মার্চ": "March",
         "এপ্রিল": "April",

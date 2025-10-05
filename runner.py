@@ -72,15 +72,15 @@ def main(cfg: ProjectConfig) -> None:
         app.signature(
             "run_pipeline_and_queue_data",
             args=[
-                ScraperEnum.daily_star.value.class_obj,
+                scraper.value.class_obj,
                 cast(dict, OmegaConf.to_container(cfg.webdriver, resolve=True)),
-                cfg.sites.__dict__["_content"][ScraperEnum.daily_star.value.scraper_name],  # loading scraper site config
+                cfg.sites.__dict__["_content"][scraper.value.scraper_name],  # loading scraper site config
                 cfg.resource.vault,
                 cfg.max_retries,
             ],
             options={"serializer": cfg.celery.task_serializer},
         )
-        # for scraper in ScraperEnum
+        for scraper in ScraperEnum
     )
     logger.info("Environment Setup Completed")
     logger.info("Initiating Scraping...")
