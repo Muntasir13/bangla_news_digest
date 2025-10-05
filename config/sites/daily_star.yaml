@@ -6,9 +6,9 @@ daily_star:
     International: https://bangla.thedailystar.net/international
     Business: https://bangla.thedailystar.net/business
   selectors:
-    news_link_list:
-    datetime:
-    title:
-    body:
+    news_link_list: div.main div.block-content.content div div.panel-pane.pane-category-news.no-title.block div.pane-content div.section div.row div.columns.small-12.medium-3.large-3 div.card.position-relative div.card-content h3.title a
+    datetime: div.container.detailed-body-2023.mt-30 div.row.rsi-scroller-content div.detailed-content.columns.medium-3.small-12.detailed-leftsidebar div.panel-pane.pane-news-details-left.no-title.block div.pane-content div.hide-for-small-only div.byline-wrapper.row.collapse.align-middle div.content.columns.medium-12.small-12 div.date
+    title: div.container.detailed-body-2023.mt-30 div.row.rsi-scroller-content div.detailed-content.columns.medium-6.small-12.detailed-centerbar div.panel-pane.pane-node-content.no-title.block div.pane-content article.article-section.node-news.odd.view-mode-full h1.article-title
+    body: div.container.detailed-body-2023.mt-30 div.row.rsi-scroller-content div.detailed-content.columns.medium-6.small-12.detailed-centerbar div.panel-pane.pane-node-content.no-title.block div.pane-content article.article-section.pb-30.clearfix.node.node-news.odd.view-mode-full div.pb-20.clearfix p
     cloudflare: null
   rate_limiter: 0

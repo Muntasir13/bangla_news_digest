@@ -3,6 +3,7 @@ from logging import Logger
 
 from src.conf import ScraperSiteConfig
 from src.news_scrapers import BaseScraper
+from src.utils import bangla_to_english_datetime_parsing
 from src.webdriver_bridge import WebDriverAdapter
 
 
@@ -12,7 +13,11 @@ class DailyStarScraper(BaseScraper):
 
     def extract_news_links(self) -> list[str]:
         try:
-            return []
+            news_link_webelement_list = self.adapter.extract_elements(
+                cloudflare_css_selector=self.site_config.selectors.cloudflare,
+                element_css_selector=self.site_config.selectors.news_link_list,
+            )
+            return [str(web_element.get_attribute("href")) for web_element in news_link_webelement_list]
         except Exception as e:
             self.logger.exception(
                 f"Something went wrong. Exception found when extracting news links. \
@@ -23,7 +28,13 @@ class DailyStarScraper(BaseScraper):
 
     def extract_publishing_datetime(self) -> datetime:
         try:
-            return datetime.now()
+            publishing_datetime_list = self.adapter.extract_elements(
+                cloudflare_css_selector=self.site_config.selectors.cloudflare,
+                element_css_selector=self.site_config.selectors.datetime,
+            )
+            date_and_time = publishing_datetime_list[0].text.split("\n")[0]
+            # Final Format: Saturday October 4, 2025 06:10 PM
+            return datetime.strptime(bangla_to_english_datetime_parsing(date_and_time), "%A %B %d, %Y %I:%M %p")
         except Exception as e:
             self.logger.exception(
                 f"Something went wrong. Exception found when extracting publishing datetime. \
@@ -34,7 +45,11 @@ class DailyStarScraper(BaseScraper):
 
     def extract_news_title(self) -> str:
         try:
-            return ""
+            news_title_webelement = self.adapter.extract_elements(
+                cloudflare_css_selector=self.site_config.selectors.cloudflare,
+                element_css_selector=self.site_config.selectors.title,
+            )
+            return news_title_webelement[0].text if news_title_webelement != [] else ""
         except Exception as e:
             self.logger.exception(
                 f"Something went wrong. Exception found when extracting news title. \
@@ -45,7 +60,12 @@ class DailyStarScraper(BaseScraper):
 
     def extract_news_body(self) -> str:
         try:
-            return ""
+            news_body_webelement = self.adapter.extract_elements(
+                cloudflare_css_selector=self.site_config.selectors.cloudflare,
+                element_css_selector=self.site_config.selectors.body,
+            )
+            news_body = [web_element.text for web_element in news_body_webelement]
+            return " \n ".join(news_body)
         except Exception as e:
             self.logger.exception(
                 f"Something went wrong. Exception found when extracting news body. \

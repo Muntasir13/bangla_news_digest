@@ -2,8 +2,10 @@ import hashlib
 import mimetypes
 import os
 import smtplib
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from email.message import EmailMessage
+
+from dotenv import load_dotenv
 
 
 # TODO: Need to update
@@ -28,6 +30,51 @@ def get_start_and_end_date(end_timedelta: int, today: bool = True, start_timedel
         start_date.replace(hour=7, minute=0, second=0),
         end_date.replace(hour=7, minute=0, second=0),
     )
+
+
+def bangla_to_english_datetime_parsing(bd_date_and_time: str) -> str:
+    """Parse bangla date and time and transform it into its english equivalent
+
+    Args:
+        bd_date_and_time (str): the bangla date and time
+
+    Returns:
+        str: the transformed english date and time
+    """
+    time_map = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
+    month_map = {
+        "জানুয়ারি": "January",
+        "ফেব্রুয়ারি": "February",
+        "মার্চ": "March",
+        "এপ্রিল": "April",
+        "মে": "May",
+        "জুন": "June",
+        "জুলাই": "July",
+        "আগস্ট": "August",
+        "সেপ্টেম্বর": "September",
+        "অক্টোবর": "October",
+        "নভেম্বর": "November",
+        "ডিসেম্বর": "December",
+    }
+    day_map = {
+        "রবিবার": "Sunday",
+        "রোববার": "Sunday",
+        "সোমবার": "Monday",
+        "মঙ্গলবার": "Tuesday",
+        "বুধবার": "Wednesday",
+        "বৃহস্পতিবার": "Thursday",
+        "শুক্রবার": "Friday",
+        "শনিবার": "Saturday",
+    }
+    period_map = {"পূর্বাহ্ন": "AM", "অপরাহ্ন": "PM"}
+    date_and_time = bd_date_and_time.translate(time_map)
+    for bn, en in day_map.items():
+        date_and_time = date_and_time.replace(bn, en)
+    for bn, en in month_map.items():
+        date_and_time = date_and_time.replace(bn, en)
+    for bn, en in period_map.items():
+        date_and_time = date_and_time.replace(bn, en)
+    return date_and_time
 
 
 def compute_news_article_fingerprint(title: str | None, body: str | None) -> str:

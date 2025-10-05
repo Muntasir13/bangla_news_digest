@@ -10,7 +10,7 @@ defaults:
       - prothom_alo
   - override hydra/job_logging: logger
 
-max_retries: 5
+max_retries: 3
 output_location:
   raw: ${hydra:runtime.output_dir}/project_outputs/raw
   processed: ${hydra:runtime.output_dir}/project_outputs/processed

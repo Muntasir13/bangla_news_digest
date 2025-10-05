@@ -28,7 +28,10 @@ def save_to_vault(website_name: str, news_cat: str, vault_location: str, link_li
     with open(vault_location, "r") as f:
         data: dict[str, dict[str, list[str]]] = json.load(f)
 
-    data[website_name][news_cat].extend(link_list)
+    if news_cat in data[website_name]:
+        data[website_name][news_cat].extend(link_list)
+    else:
+        data[website_name][news_cat] = link_list
 
     with open(vault_location, "w") as f:
         json.dump(data, f)

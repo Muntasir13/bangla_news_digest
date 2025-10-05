@@ -28,33 +28,7 @@ def news_summary_generator(news_body: str) -> list[str]:
     Returns:
         list[str]: the two bullet points
     """
-    return news_body.split("\n ")[:2]
-
-
-def text_post_processing(text: str) -> str:
-    """This method handles all post-processing related to news texts.\
-    It will remove preceding and leading spaces, '\'n within text and so on.
-
-    Args:
-        text (str): input text
-
-    Returns:
-        str: post-processed text as output
-    """
-    return ".'".join(
-        filter(
-            None,
-            (
-                ". ".join(
-                    filter(
-                        None,
-                        [" ".join(filter(None, sub_text.strip().split("\n"))) for sub_text in text.split(". ")],
-                    )
-                )
-                + "."
-            ).split(".'"),
-        )
-    )
+    return news_body.split("\n")[:2]
 
 
 def extract_news_links_list(scraper: BaseScraper, url: str, max_retries: int) -> list[str]:
@@ -92,7 +66,7 @@ def extract_from_single_news_link(scraper: BaseScraper, news_link: str) -> tuple
     scraper.get_url(news_link)
     date_and_time = scraper.extract_publishing_datetime()
     title = scraper.extract_news_title()
-    body = text_post_processing(scraper.extract_news_body())
+    body = scraper.extract_news_body()
     return (title, date_and_time, body)
 
 
@@ -109,7 +83,7 @@ def compile_extracted_data(scraper: BaseScraper, news_links: list[str], news_cat
         list[dict[str, str]]: news data compiled into a list. Each entry contains
         a title, body and link of each news
     """
-    logger.info(f"{len(news_links)} news links found for {scraper.site_config.name}")
+    logger.info(f"{len(news_links)} news links found for {news_cat} in {scraper.site_config.name}")
     today, yesterday = get_start_and_end_date(end_timedelta=3 if datetime.now().strftime("%A") == "Sunday" else 1)
 
     compiled_data: list[dict[str, str | list[str]]] = []
@@ -150,7 +124,7 @@ def compile_extracted_data(scraper: BaseScraper, news_links: list[str], news_cat
                 vault_location=vault_location,
                 link_list=[news_link],
             )
-    logger.info(f"{len(compiled_data)} valid news data compiled from {scraper.site_config.name}")
+    logger.info(f"{len(compiled_data)} valid news data compiled from {news_cat} in {scraper.site_config.name}")
     return compiled_data
 
 
@@ -170,6 +144,7 @@ def extract_from_unscraped(scraper: BaseScraper, vault_location: str, max_retrie
     """
     compiled_data: list[dict[str, str | list[str]]] = []
     for _ in range(max_retries):
+        logger.info("Attempting extraction from initially unscraped links...")
         unscraped_news_links = read_from_vault(website_name=scraper.site_config.name, vault_location=vault_location)
         if unscraped_news_links == {}:
             logger.info(f"No unscraped news links found for {scraper.site_config.name}")
@@ -196,6 +171,7 @@ def extract_from_unscraped(scraper: BaseScraper, vault_location: str, max_retrie
             f"News links from {len(unscraped_news_links)} categories still remain to be scraped even after {max_retries} retries",
             extra={"unscraped_news_links": unscraped_news_links},
         )
+        clear_from_vault(website_name=scraper.site_config.name, vault_location=vault_location)
 
     logger.info(
         f"{len(compiled_data)} valid news data compiled from unscraped news links \

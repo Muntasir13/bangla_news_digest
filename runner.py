@@ -42,10 +42,11 @@ def run_pipeline_and_queue_data(
     logger.info(f"{scraper.site_config.name} scraper loaded")
     logger.info("Running extraction...")
 
-    compiled_data = data_extraction_pipeline(scraper=scraper, vault_location=vault_location, max_retries=max_retries)
-
-    driver_adapter.quit()
-    logger.info(f"Web driver of {scraper.site_config.name} has gracefully quitted")
+    try:
+        compiled_data = data_extraction_pipeline(scraper=scraper, vault_location=vault_location, max_retries=max_retries)
+    finally:
+        driver_adapter.quit()
+        logger.info(f"Web driver of {scraper.site_config.name} has gracefully quitted")
 
     return compiled_data
 
@@ -71,21 +72,21 @@ def main(cfg: ProjectConfig) -> None:
         app.signature(
             "run_pipeline_and_queue_data",
             args=[
-                scraper.value.class_obj,
+                ScraperEnum.daily_star.value.class_obj,
                 cast(dict, OmegaConf.to_container(cfg.webdriver, resolve=True)),
-                cfg.sites.__dict__["_content"][scraper.value.scraper_name],  # loading scraper site config
+                cfg.sites.__dict__["_content"][ScraperEnum.daily_star.value.scraper_name],  # loading scraper site config
                 cfg.resource.vault,
                 cfg.max_retries,
             ],
             options={"serializer": cfg.celery.task_serializer},
         )
-        for scraper in ScraperEnum
+        # for scraper in ScraperEnum
     )
     logger.info("Environment Setup Completed")
     logger.info("Initiating Scraping...")
 
     group_result = g.apply_async()
-    results = group_result.get(timeout=60)  # blocks; like await
+    results = group_result.get(propagate=False)  # blocks; like await
     compiled_data = []
     for data in results:
         compiled_data.extend(data)
@@ -110,6 +111,8 @@ def main(cfg: ProjectConfig) -> None:
     if cfg.runtime.db_send:
         inserted_articles = save_scraped_items(database_config=cfg.runtime.db, items=compiled_data)
         logger.info(f"Processed Data saved at db. No. of articles saved: {inserted_articles}")
+    else:
+        logger.warning("Data not saved to DB. You might be losing valuable data.")
 
     if cfg.runtime.email_send:
         try:

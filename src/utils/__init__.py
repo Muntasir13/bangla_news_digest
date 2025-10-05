@@ -1,5 +1,6 @@
 from .logger_setup import configure_child_logging, init_logging, log_queue
 from .other_utils import (
+    bangla_to_english_datetime_parsing,
     compute_news_article_fingerprint,
     get_start_and_end_date,
     send_email,
@@ -11,6 +12,7 @@ __all__ = [
     "compute_news_article_fingerprint",
     "get_start_and_end_date",
     "send_email",
+    "bangla_to_english_datetime_parsing",
     "save_processsed_data",
     "save_raw_data",
     "clear_from_vault",

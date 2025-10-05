@@ -1,4 +1,4 @@
-host: smtp.example.com
+host: smtp.gmail.com
 port: 587
 username: ${oc.env:SMTP_USER, null}
 password: ${oc.env:SMTP_PASS, null}
@@ -9,3 +9,4 @@ cc_addr:
   - muntasirm@idlc.com
   - zareen@idlc.com
   - mtashnim@idlc.com
+  - mdfahad@idlc.com
