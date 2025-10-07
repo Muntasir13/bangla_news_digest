@@ -108,7 +108,7 @@ def compile_extracted_data(scraper: BaseScraper, news_links: list[str], news_cat
                     "category": news_cat,
                     "scraped_at": str(datetime.now()).split(".")[0],  # removing the micro second part
                     "date": date.today().strftime("%B %d, %Y"),
-                    "language": "English",
+                    "language": "Bangla",
                     "url": news_link,
                 }
             )

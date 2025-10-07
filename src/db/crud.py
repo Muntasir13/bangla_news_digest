@@ -22,7 +22,7 @@ from .session import get_session
 
 log = logging.getLogger(__name__)
 
-BATCH_SIZE = 500
+BATCH_SIZE = 1
 
 
 # ---------- Schema helper ----------
@@ -169,10 +169,10 @@ def insert_articles_batch(
             else:
                 _insert_chunk_plain(session, table, chunk)
             total += len(chunk)
-        except IntegrityError:
+        except Exception:
             # This exception should be rare.
-            log.exception("IntegrityError while inserting chunk %d..%d", i, i + len(chunk) - 1)
-            raise
+            log.warning(f"Error found while inserting chunk {i}..{i + len(chunk) - 1}. Skipping this entry...")
+            continue
     return total
 
 

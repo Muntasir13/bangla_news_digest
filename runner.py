@@ -81,6 +81,7 @@ def main(cfg: ProjectConfig) -> None:
             options={"serializer": cfg.celery.task_serializer},
         )
         for scraper in ScraperEnum
+        if scraper not in [ScraperEnum.janakantha, ScraperEnum.prothom_alo]
     )
     logger.info("Environment Setup Completed")
     logger.info("Initiating Scraping...")
