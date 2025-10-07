@@ -44,16 +44,17 @@ Goals:
 ## Current Feature List
 
 - Multi-site scrapers for all websites (site-specific scraper classes).
+- Multiprocessing managed through Celery
 - Template Method + Bridge pattern for scrapers + WebDriver adapters.
 - WebDriver management with `webdriver-manager` (Chrome & Firefox).
 - Docx export using `docxtpl` (template-based `.docx` generation).
 - Post-processing to convert plaintext URLs to real hyperlinks (keeps style).
 - Logging: JSON formatting + daily rotation (TimedRotatingFileHandler).
 - Pipelines that validate, normalize, deduplicate and save results (local storage).
-- Utilities: YAML site configs, helpers, CLI runner.
+- Utilities: YAML site configs, helpers.
 - DB integration (SQL) for longer-term storage.
 - CI (GitHub Actions): lint → unit test (just webdriver adapter).
-- LLM prompt for NewsFlash summary bullet points generation (manual intervention).
+- Config management with **Hydra** (hydra-core) for composable, overrideable configs and easy experiment sweeps. Hydra unifies global config, site-specific configs, driver settings, logging, and deployment overrides into a single composable config system.
 
 ## Future Planned Feature List
 
@@ -61,7 +62,6 @@ Goals:
 - CI (GitHub Actions): CI (GitHub Actions) → build/push → deploy.
 - Full test-suite coverage (pytest + Selenium integration tests).
 - Docker image build + single-server docker-compose deployment examples.
-- Config management with **Hydra** (hydra-core) for composable, overrideable configs and easy experiment sweeps. Hydra will unify global config, site-specific configs, driver settings, logging, and deployment overrides into a single composable config system.
 
 ## Architecture
 
@@ -110,58 +110,82 @@ Important env Variables (example):
 
 ```ini
 # Email
-HOST=smtp.example.com
-PORT=587
-USER=...
-PASSWORD=...
+SMTP_USER=...
+SMTP_PASS=...
+
+DB_USER=...
+DB_PASS=...
+DB_SSL_CA_PATH=...
+
+CELERY_BROKER_URL=...
+CELERY_RESULT_BACKEND=...
 ```
 
-### Future: Hydra-based config management (planned)
+### Hydra-based config management
 
-We will add `hydra-core` to manage configuration composition, overrides, and multi-run sweeps. Benefits:
+`hydra-core` has been added to manage configuration composition, overrides, and multi-run sweeps. Benefits:
 
-- Compose global + site + environment configs (`conf/config.yaml`, `conf/sites/*.yaml`, `conf/env/*.yaml`)
-- Runtime overrides (e.g. `python runner.py driver=chrome headless=false`)
+- Compose global + site + environment configs (`conf/default.yaml`, `conf/sites/*.yaml`, `conf/runtime/*.yaml`)
+- Runtime overrides (e.g. `python runner.py runtime=dev`)
 - Structured configs (dataclasses / OmegaConf) for stronger validation
 - Automatic working-directory and output logging for runs (outputs stored under `outputs/<timestamp>/`)
 - Easy multi-run sweeps for testing different rate limits / concurrency / scraping schedules
 
-Planned layout (config directory):
+Layout (config directory):
 
-- conf/
+- config/
+  - celery/
+    - celery.yaml
+  - hydra/job_logging/
+    - logger.yaml
+  - runtime/
+    - db/
+      - db_dev.yaml
+      - db_prod.yaml
+    - email/
+      - smtp_dev.yaml
+      - smtp_prod.yaml
+    - dev.yaml
+    - prod.yaml
+  - sites/
+    - site1.yaml
+    - site2.yaml
+  - webdriver/
+    - chrome.yaml
+    - firefox.yaml
   - default.yaml
-- sites/
-  - site1.yaml
-  - site2.yaml
-- logger.yaml
 
 ## Running the Scraper
 
-- `runner.py` is the primary entrypoint
-- `src/` contains the project source code
-- `db/` contains the code for CRUD operations in an SQL database.
-- `news_scrapers/` contain the scraper code for each website. Template methodology used for code design.
-- `utils/` contain the utility codes
-- `webdriver_bridge/` contains the Selenium Driver layer and the Adapter layer code. The Adapter layer and the site scrapers are connected through Bridge methodology.
+- `runner.py` is the entrypoint for running the overall project.
+- `src/` contains the project source code.
+- `src/celery_app.py` is the entrypoint for running multiple scrapers.
+- `src/conf/` contains the dataclasses for hydra config
+- `src/db/` contains the code for CRUD operations in an SQL database.
+- `src/news_scrapers/` contain the scraper code for each website. Template methodology used for code design.
+- `src/utils/` contain the utility codes
+- `src/webdriver_bridge/` contains the Selenium Driver layer and the Adapter layer code. The Adapter layer and the site scrapers are connected through Bridge methodology.
+- `test/` contains the test module
 
 Examples:
 
 ```bash
+python -m src.celery_app
 python runner.py
 ```
+Make sure each command above is run on a separate terminal.
 
 ## Output & Storage
+Project output files are saved at `output/<timestamp>/project_outputs`.
 
-Project output files are saved at `output/`.
+Raw: `output/<timestamp>/project_outputs/raw/`
+Processed: `output/<timestamp>/project_outputs/processed/`
 
-Raw: `output/raw`
-Processed: `output/processed/`
-
-The raw folder contains the news data in JSON format. The processed folder contains the data in the intended DOCX format. DOCX reports are saved with filenames like `news_data_YYYY-MM-DD.docx`. Filename can be configured in `runner.py`
+The raw folder contains the news data in JSON format. The processed folder contains the data in the intended DOCX format. DOCX reports are saved with filenames like `Bangla News Digest MM DD, YYYY.docx`. Filename can be configured in `runner.py`
 
 ## Logging & Monitoring
 
-Logs are JSON structured and written to `logs/` (daily rotated). Sentry may be integrated via `SENTRY_DSN` for viewing and filtering logs (but highly unlikely).
+Logs are JSON structured and written to `output/<timestamp>/` (daily rotated). Sentry may be integrated via `SENTRY_DSN` for viewing and filtering logs (but highly unlikely).
 
 ## Secrets & Security
 
@@ -175,6 +199,7 @@ Store at minimum:
 
 - SMTP credentials
 - DB credentials
+- Celery based URLs
 - SSH deploy key (for server deployments) (if implemented)
 - SENTRY_DSN (if implemented)
 
@@ -182,10 +207,10 @@ Example `.env` code is given in [Configuration](#configuration)
 
 ## Adding a New Website
 
-1. Add config/sites/[newsite].yaml (name, url, selectors).
-2. Create src/news_scrapers/[newsite]\_scraper.py implementing SiteScraper(BaseScraper) (override parse methods following Template Method).
-3. Add a small unit test in tests/news*scrapers/test*[newsite]\_scraper.py — mock network.
-4. Register the site in the runner file.
+1. Add config/sites/[newsite].yaml (name, base_url, url_list, selectors, rate_limiter).
+2. Create src/news_scrapers/[newsite]_scraper.py implementing SiteScraper(BaseScraper) (override parse methods following Template Method).
+3. Add the [newsite]_scraper in ScraperEnum.
+4. Add a small unit test in tests/news*scrapers/test*[newsite]_scraper.py — mock network.
 5. Run `python -m pytest tests/news_scrapers/test_[newsite]_scraper.py
 `
 
