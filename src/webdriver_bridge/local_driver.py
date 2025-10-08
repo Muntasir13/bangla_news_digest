@@ -53,7 +53,7 @@ class ChromeLocalDriver(LocalDriverBaseClass):
         """This method will ensure that unnecessary content loading (CSS, PNG, JPG)
         does not reduce scraping speed.
         """
-        self.driver.execute_cdp_cmd("Network.enable", {})
+        # self.driver.execute_cdp_cmd("Network.enable", {})
         self.driver.execute_cdp_cmd(
             "Network.setBlockedURLs",
             {

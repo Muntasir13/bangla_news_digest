@@ -7,9 +7,9 @@ prothom_alo:
     World: https://www.prothomalo.com/world
     Business: https://www.prothomalo.com/business
   selectors:
-    news_link_list:
-    datetime:
-    title:
-    body:
+    news_link_list: div.xkXol a
+    datetime: div.story-content-wrapper div.story-metadata-wrapper time span
+    title: div.story-content-wrapper div.story-title-info div h1
+    body: div.story-content-wrapper div.story-content div.story-element div.story-element-text div p
     cloudflare: null
   rate_limiter: 0

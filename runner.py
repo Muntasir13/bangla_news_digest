@@ -11,6 +11,7 @@ from omegaconf import OmegaConf
 
 from src.celery_app import generate_celery_app
 from src.conf import ProjectConfig, ScraperSiteConfig, WebDriverConfig
+from src.conf.site_config import ScraperSiteSelectorConfig
 from src.db import ensure_tables, get_engine, save_scraped_items
 from src.news_scrapers import BaseScraper, ScraperEnum
 from src.pipelines import data_extraction_pipeline
@@ -81,7 +82,6 @@ def main(cfg: ProjectConfig) -> None:
             options={"serializer": cfg.celery.task_serializer},
         )
         for scraper in ScraperEnum
-        if scraper not in [ScraperEnum.prothom_alo]
     )
     logger.info("Environment Setup Completed")
     logger.info("Initiating Scraping...")
