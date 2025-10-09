@@ -206,6 +206,26 @@ def data_extraction_pipeline(scraper: BaseScraper, vault_location: str, max_retr
     return compiled_data
 
 
+def separate_into_categories(compiled_data: list[dict[str, str | list[str]]]) -> dict[str, dict[str, str | list[str]]]:
+    cat_separated_data: dict[str, dict[str, str | list[str]]] = {
+        "Economy": {},
+        "Business": {},
+        "Politics": {},
+        "Bangladesh": {},
+        "International": {},
+        "Others": {},
+    }
+    for data in compiled_data:
+        if str(data["category"]) == "National":
+            cat_separated_data["Bangladesh"] = data
+        elif str(data["category"]) in {"Sports", "Education", "Migration"}:
+            cat_separated_data["Others"] = data
+        elif str(data["category"]) == "World":
+            cat_separated_data["International"] = data
+        cat_separated_data[str(data["category"])] = data
+    return cat_separated_data
+
+
 def remove_similar_news(
     news_list: list[dict[str, str]], similar_news_dict: dict[str, dict[str, str]], id_to_date: dict[str, str]
 ) -> list[dict[str, str]]:

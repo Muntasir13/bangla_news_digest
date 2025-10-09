@@ -11,10 +11,9 @@ from omegaconf import OmegaConf
 
 from src.celery_app import generate_celery_app
 from src.conf import ProjectConfig, ScraperSiteConfig, WebDriverConfig
-from src.conf.site_config import ScraperSiteSelectorConfig
 from src.db import ensure_tables, get_engine, save_scraped_items
 from src.news_scrapers import BaseScraper, ScraperEnum
-from src.pipelines import data_extraction_pipeline
+from src.pipelines import data_extraction_pipeline, separate_into_categories
 from src.utils import save_processsed_data, save_raw_data, send_email
 from src.webdriver_bridge import WebDriverAdapter, load_webdriver
 
@@ -73,15 +72,15 @@ def main(cfg: ProjectConfig) -> None:
         app.signature(
             "run_pipeline_and_queue_data",
             args=[
-                scraper.value.class_obj,
+                ScraperEnum.prothom_alo.value.class_obj,
                 cast(dict, OmegaConf.to_container(cfg.webdriver, resolve=True)),
-                cfg.sites.__dict__["_content"][scraper.value.scraper_name],  # loading scraper site config
+                cfg.sites.__dict__["_content"][ScraperEnum.prothom_alo.value.scraper_name],  # loading scraper site config
                 cfg.resource.vault,
                 cfg.max_retries,
             ],
             options={"serializer": cfg.celery.task_serializer},
         )
-        for scraper in ScraperEnum
+        # for scraper in ScraperEnum
     )
     logger.info("Environment Setup Completed")
     logger.info("Initiating Scraping...")
@@ -94,15 +93,18 @@ def main(cfg: ProjectConfig) -> None:
     logger.info("News extraction completed.")
     logger.info(f"All news data compiled. Total {len(compiled_data)} news found.")
 
+    cat_separated_data = separate_into_categories(compiled_data=compiled_data)
+    logger.info("News data separated into categories")
+
     save_raw_data(
-        data=compiled_data,
+        data=cat_separated_data,
         save_location=cfg.output_location.raw,
         filename="bangla_news_digest.json",
     )
     logger.info(f"Raw Data saved at {cfg.output_location.raw}")
 
     save_processsed_data(
-        data=compiled_data,
+        data=cat_separated_data,
         save_location=cfg.output_location.processed,
         filename=f"Bangla News Digest {date.today().strftime('%B %d, %Y')}.docx",
         template=cfg.resource.news_digest_template,

@@ -2,10 +2,8 @@ import hashlib
 import mimetypes
 import os
 import smtplib
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from email.message import EmailMessage
-
-from dotenv import load_dotenv
 
 
 # TODO: Need to update

@@ -11,7 +11,6 @@ from sqlalchemy import update as sql_update
 # dialect helpers
 from sqlalchemy.dialects import postgresql as pg_dialects
 from sqlalchemy.engine import Engine
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from sqlalchemy.sql._typing import _DMLTableArgument
 
