@@ -10,6 +10,6 @@ prothom_alo:
     news_link_list: div.xkXol a
     datetime: div.story-content-wrapper div.story-metadata-wrapper time span
     title: div.story-content-wrapper div.story-title-info div h1
-    body: div.story-content-wrapper div.story-content div.story-element div.story-element-text div p
+    body: div.story-content-wrapper div.story-content div.story-element.story-element-text div p
     cloudflare: null
   rate_limiter: 0

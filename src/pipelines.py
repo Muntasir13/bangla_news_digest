@@ -206,23 +206,30 @@ def data_extraction_pipeline(scraper: BaseScraper, vault_location: str, max_retr
     return compiled_data
 
 
-def separate_into_categories(compiled_data: list[dict[str, str | list[str]]]) -> dict[str, dict[str, str | list[str]]]:
-    cat_separated_data: dict[str, dict[str, str | list[str]]] = {
-        "Economy": {},
-        "Business": {},
-        "Politics": {},
-        "Bangladesh": {},
-        "International": {},
-        "Others": {},
+def separate_into_categories(compiled_data: list[dict[str, str | list[str]]]) -> dict[str, list[dict[str, str | list[str]]]]:
+    cat_separated_data: dict[str, list[dict[str, str | list[str]]]] = {
+        "Economy": [],
+        "Business": [],
+        "Politics": [],
+        "Bangladesh": [],
+        "International": [],
+        "Others": [],
     }
     for data in compiled_data:
         if str(data["category"]) == "National":
-            cat_separated_data["Bangladesh"] = data
+            cat_separated_data["Bangladesh"].append(data)
         elif str(data["category"]) in {"Sports", "Education", "Migration"}:
-            cat_separated_data["Others"] = data
+            cat_separated_data["Others"].append(data)
         elif str(data["category"]) == "World":
-            cat_separated_data["International"] = data
-        cat_separated_data[str(data["category"])] = data
+            cat_separated_data["International"].append(data)
+        else:
+            cat_separated_data[str(data["category"])].append(data)
+    return cat_separated_data
+
+
+def sort_by_timestamp(cat_separated_data: dict[str, list[dict[str, str | list[str]]]]) -> dict[str, list[dict[str, str | list[str]]]]:
+    for cat, news_list in cat_separated_data.items():
+        cat_separated_data[cat] = sorted(news_list, key=lambda x: x["published_at"])
     return cat_separated_data
 
 

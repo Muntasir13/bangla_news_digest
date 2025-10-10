@@ -1,6 +1,7 @@
 import json
 
 
+# TODO: Save to Redis instead of json file
 def read_from_vault(website_name: str, vault_location: str) -> dict[str, list[str]]:
     """Get list of unscraped news links based on news platform from vault
 

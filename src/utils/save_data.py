@@ -16,11 +16,11 @@ from docx.text.paragraph import Paragraph
 from docxtpl import DocxTemplate
 
 
-def save_raw_data(data: dict[str, dict[str, str | list[str]]], save_location: str, filename: str) -> None:
+def save_raw_data(data: dict[str, list[dict[str, str | list[str]]]], save_location: str, filename: str) -> None:
     """Save compiled news data as JSON
 
     Args:
-        data (dict[str, dict[str, str | list[str]]]): the compiled news data
+        data (dict[str, list[dict[str, str | list[str]]]]): the compiled news data
         save_location (str): the folder location where file will be saved
         filename (str): as name suggests
     """
@@ -30,11 +30,11 @@ def save_raw_data(data: dict[str, dict[str, str | list[str]]], save_location: st
         json.dump(data, f)
 
 
-def save_processsed_data(data: dict[str, dict[str, str | list[str]]], save_location: str, filename: str, template: str) -> None:
+def save_processsed_data(data: dict[str, list[dict[str, str | list[str]]]], save_location: str, filename: str, template: str) -> None:
     """Save compiled news data as DOCX
 
     Args:
-        data (dict[str, dict[str, str | list[str]]]): the compiled news data
+        data (dict[str, list[dict[str, str | list[str]]]]): the compiled news data
         save_location (str): the folder location where file will be saved
         filename (str): as name suggests
         template (str): .DOCX template filepath to use for compiling news data

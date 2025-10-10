@@ -17,7 +17,7 @@ class ScraperDesc:
 
 
 class ScraperEnum(Enum):
+    prothom_alo = ScraperDesc(scraper_name="prothom_alo", class_obj=ProthomAloScraper)
     bonik_barta = ScraperDesc(scraper_name="bonik_barta", class_obj=BonikBartaScraper)
     daily_star = ScraperDesc(scraper_name="daily_star", class_obj=DailyStarScraper)
     janakantha = ScraperDesc(scraper_name="janakantha", class_obj=JanakanthaScraper)
-    prothom_alo = ScraperDesc(scraper_name="prothom_alo", class_obj=ProthomAloScraper)
