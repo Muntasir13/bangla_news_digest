@@ -82,7 +82,7 @@ class BaseScraper(ABC):
                 element_css_selector=self.site_config.selectors.body,
             )
             news_body = [web_element.text for web_element in news_body_webelement]
-            return "\n".join(news_body)
+            return "\n".join([s for s in news_body if s.strip()])  # Removes empty string elements in the news body
         except Exception as e:
             self.logger.exception(
                 f"Something went wrong. Exception found when extracting news body. \

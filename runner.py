@@ -76,15 +76,15 @@ def main(cfg: ProjectConfig) -> None:
         app.signature(
             "run_pipeline_and_queue_data",
             args=[
-                ScraperEnum.prothom_alo.value.class_obj,
+                scraper.value.class_obj,
                 cast(dict, OmegaConf.to_container(cfg.webdriver, resolve=True)),
-                cfg.sites.__dict__["_content"][ScraperEnum.prothom_alo.value.scraper_name],  # loading scraper site config
+                cfg.sites.__dict__["_content"][scraper.value.scraper_name],  # loading scraper site config
                 cfg.resource.vault,
                 cfg.max_retries,
             ],
             options={"serializer": cfg.celery.task_serializer},
         )
-        # for scraper in ScraperEnum
+        for scraper in ScraperEnum
     )
     logger.info("Environment Setup Completed")
     logger.info("Initiating Scraping...")
@@ -121,45 +121,45 @@ def main(cfg: ProjectConfig) -> None:
     )
     logger.info(f"Processed Data saved at {cfg.output_location.processed}")
 
-    # if cfg.runtime.db_send:
-    #     inserted_articles = save_scraped_items(database_config=cfg.runtime.db, items=compiled_data)
-    #     logger.info(f"Processed Data saved at db. No. of articles saved: {inserted_articles}")
-    # else:
-    #     logger.warning("Data not saved to DB. You might be losing valuable data.")
+    if cfg.runtime.db_send:
+        inserted_articles = save_scraped_items(database_config=cfg.runtime.db, items=compiled_data)
+        logger.info(f"Processed Data saved at db. No. of articles saved: {inserted_articles}")
+    else:
+        logger.warning("Data not saved to DB. You might be losing valuable data.")
 
-    # if cfg.runtime.email_send:
-    #     try:
-    #         send_email(
-    #             smtp_config={
-    #                 "host": cfg.runtime.email.host,
-    #                 "port": cfg.runtime.email.port,
-    #                 "user": cfg.runtime.email.username,
-    #                 "password": cfg.runtime.email.password,
-    #             },
-    #             email_subject="Today's Bangla News Digest",
-    #             email_body="\n".join(
-    #                 [
-    #                     "Assalamu alaikum,",
-    #                     "Here is today's Bangla News Digest.",
-    #                     f"Time taken for the entire project: {round((time.time() - start_time) / 60, 2)} minutes in total",
-    #                     f"Total valid news scraped: {len(compiled_data)}",
-    #                 ]
-    #             ),
-    #             from_addr=cfg.runtime.email.from_addr,
-    #             to_addr=cfg.runtime.email.to_addr,
-    #             cc_addr=cfg.runtime.email.cc_addr,
-    #             attachment_path=os.path.join(
-    #                 cfg.output_location.processed,
-    #                 f"Bangla News Digest {date.today().strftime('%B %d, %Y')}.docx",
-    #             ),
-    #         )
-    #     except Exception as e:
-    #         logger.exception(
-    #             f"Something went wrong. Exception found when sending email. \
-    #                 The exception found: {e}. "
-    #         )
-    # else:
-    #     logger.warning("Email not sent to intended users.")
+    if cfg.runtime.email_send:
+        try:
+            send_email(
+                smtp_config={
+                    "host": cfg.runtime.email.host,
+                    "port": cfg.runtime.email.port,
+                    "user": cfg.runtime.email.username,
+                    "password": cfg.runtime.email.password,
+                },
+                email_subject="Today's Bangla News Digest",
+                email_body="\n".join(
+                    [
+                        "Assalamu alaikum,",
+                        "Here is today's Bangla News Digest.",
+                        f"Time taken for the entire project: {round((time.time() - start_time) / 60, 2)} minutes in total",
+                        f"Total valid news scraped: {len(compiled_data)}",
+                    ]
+                ),
+                from_addr=cfg.runtime.email.from_addr,
+                to_addr=cfg.runtime.email.to_addr,
+                cc_addr=cfg.runtime.email.cc_addr,
+                attachment_path=os.path.join(
+                    cfg.output_location.processed,
+                    f"Bangla News Digest {date.today().strftime('%B %d, %Y')}.docx",
+                ),
+            )
+        except Exception as e:
+            logger.exception(
+                f"Something went wrong. Exception found when sending email. \
+                    The exception found: {e}. "
+            )
+    else:
+        logger.warning("Email not sent to intended users.")
 
     logger.info(f"Time taken for total process: {round((time.time() - start_time) / 60, 2)} minutes")
     logger.info("System is shutting down...")
