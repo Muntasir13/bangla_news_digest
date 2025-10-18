@@ -28,6 +28,8 @@ def news_summary_generator(news_body: str) -> list[str]:
     Returns:
         list[str]: the two bullet points
     """
+    if len(news_body.split("\n")) == 1:
+        return [f"{x}।" for x in news_body.split("।")[:2]]
     return news_body.split("\n")[:2]
 
 
@@ -83,7 +85,6 @@ def compile_extracted_data(scraper: BaseScraper, news_links: list[str], news_cat
         list[dict[str, str]]: news data compiled into a list. Each entry contains
         a title, body and link of each news
     """
-    logger.info(f"{len(news_links)} news links found for {news_cat} in {scraper.site_config.name}")
     today, yesterday = get_start_and_end_date(end_timedelta=3 if datetime.now().strftime("%A") == "Sunday" else 1)
 
     compiled_data: list[dict[str, str | list[str]]] = []
@@ -112,6 +113,9 @@ def compile_extracted_data(scraper: BaseScraper, news_links: list[str], news_cat
                     "url": news_link,
                 }
             )
+            # Clearing browser session between sites
+            scraper.adapter.driver.delete_all_cookies()
+            scraper.adapter.driver.execute_script("window.localStorage.clear(); window.sessionStorage.clear();")
         except Exception:
             logger.exception(
                 "Saving news link to vault",
@@ -194,7 +198,7 @@ def data_extraction_pipeline(scraper: BaseScraper, vault_location: str, max_retr
     compiled_data: list[dict[str, str | list[str]]] = []
     for news_cat, news_cat_url in scraper.site_config.url_list.items():
         news_links = extract_news_links_list(scraper=scraper, url=news_cat_url, max_retries=max_retries)
-        logger.info(f"{len(news_links)} news links found for {scraper.site_config.name}")
+        logger.info(f"{len(news_links)} news links found for {news_cat} in {scraper.site_config.name}")
         compiled_data += compile_extracted_data(
             scraper=scraper,
             news_links=news_links,

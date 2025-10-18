@@ -45,6 +45,7 @@ class ChromeLocalDriver(LocalDriverBaseClass):
         for config, cfg_val in self.driver_config.options.items():
             options.add_argument(f"--{config}={cfg_val}")
         options.add_argument(f"user-agent={UserAgent().random}")
+        options.page_load_strategy = "eager"
 
         driver_path = ChromeDriverManager().install()
         return uc.Chrome(options=options, driver_executable_path=driver_path)

@@ -1,11 +1,13 @@
+import json
 import os
 import time
 from datetime import date
 from logging import getLogger
-from typing import cast
+from typing import Optional, cast
 
 import hydra
 from celery import group
+from celery.result import AsyncResult
 from dotenv import load_dotenv
 from omegaconf import OmegaConf
 
@@ -89,14 +91,25 @@ def main(cfg: ProjectConfig) -> None:
     logger.info("Environment Setup Completed")
     logger.info("Initiating Scraping...")
 
-    group_result = g.apply_async()
-    results = group_result.get(propagate=False)  # blocks; like await
+    group_result: AsyncResult = g.apply_async()
+    # group_result by definition returns list of lists
+    results = cast(Optional[list[list[dict[str, str | list[str]]]]], group_result.get(propagate=True))  # blocks; like await
+    if results is None:
+        logger.warning("No result found from async tasks")
+        return
     # [[{...}, {...}, ...], [...], ...] -> [{...}, {...}, ...]
     compiled_data: list[dict[str, str | list[str]]] = []
     for data in results:
         compiled_data.extend(data)
     # Removes all duplicate values if any comes by accident
-    compiled_data = [dict(t) for t in {tuple(sorted(d.items())) for d in compiled_data}]
+    unique_data = []
+    seen = set()
+    for d in compiled_data:
+        s = json.dumps(d, sort_keys=True)
+        if s not in seen:
+            seen.add(s)
+            unique_data.append(d)
+    compiled_data = unique_data
     logger.info("News extraction completed.")
     logger.info(f"All news data compiled. Total {len(compiled_data)} news found.")
 

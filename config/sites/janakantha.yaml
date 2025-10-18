@@ -11,9 +11,9 @@ janakantha:
     Education: https://www.dailyjanakantha.com/education/
     Migration: https://www.dailyjanakantha.com/migration/
   selectors:
-    news_link_list: div.DCatTopNews, div.DCatTopNewsList a
+    news_link_list: div.DivCatTopNewsList div.DCatTopNewsList a
     datetime: div.col-lg-9.col-sm-12.rowresize.atPrint100 div.AdditionalInfo div.pDate p
     title: div.row div.col-lg-9.col-sm-12.rowresize.atPrint100 div.DDetailsTitle h1
-    body: div.col-lg-9.col-sm-12.rowresize.atPrint100 article.DDetailsContent div p
+    body: div.col-lg-9.col-sm-12.rowresize.atPrint100 article.DDetailsContent div#contentDetails p
     cloudflare: null
   rate_limiter: 0

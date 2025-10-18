@@ -25,4 +25,3 @@ webdriver:
     disable-dev-shm-usage: true
     disable-blink-features: AutomationControlled
     enable-gpu-rasterization: true
-    page_load_strategy: eager

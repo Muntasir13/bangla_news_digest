@@ -11,13 +11,33 @@ class JanakanthaScraper(BaseScraper):
     def __init__(self, driver_adapter: WebDriverAdapter, logger: Logger, site_config: ScraperSiteConfig) -> None:
         super().__init__(driver_adapter, logger, site_config)
 
+    def extract_news_links(self) -> list[str]:
+        # Extracting top news
+        top_news = ""
+        try:
+            news_link_webelement_list = self.adapter.extract_elements(
+                cloudflare_css_selector=self.site_config.selectors.cloudflare,
+                element_css_selector="div.DCategoryPageTop div.DCatTopNews a",
+            )
+            top_news = news_link_webelement_list[0].get_attribute("href") or ""
+            total_news_links = super().extract_news_links()
+            total_news_links.append(top_news)
+            return total_news_links
+        except Exception as e:
+            self.logger.exception(
+                f"Something went wrong. Exception found when extracting top news. \
+                The exception found: {e}",
+                extra={"scraper": self.site_config.name},
+            )
+            raise
+
     def extract_publishing_datetime(self) -> datetime:
         try:
             publishing_datetime_list = self.adapter.extract_elements(
                 cloudflare_css_selector=self.site_config.selectors.cloudflare,
                 element_css_selector=self.site_config.selectors.datetime,
             )
-            date_and_time = publishing_datetime_list[0].text.split(": ")[1]
+            date_and_time = publishing_datetime_list[0].text.split("; ")[0].split(": ")[1]
             # Final Format: 23:50, 7 October 2025
             return datetime.strptime(bangla_to_english_datetime_parsing(date_and_time), "%H:%M, %d %B %Y")
         except Exception as e:

@@ -11,4 +11,4 @@ bonik_barta:
     title: div.pb-4 div div h2.font-bold.text-bb-title
     body: div.pb-4 div div.flex.flex-col div div.mx-auto div.post-body div.mt-4 div.max-w-none.prose.mb-3.break-words.prose-xl p
     cloudflare: null
-  rate_limiter: 0
+  rate_limiter: 5
