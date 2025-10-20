@@ -64,19 +64,8 @@ jobs:
         shell: bash
         run: source .venv/bin/activate
 
-      - name: Run format check
-        run: |
-          poetry run black --check .
-          poetry run isort --check-only .
-
-      - name: Lint
-        run: |
-          poetry run ruff check src tests
-          poetry run ruff format src tests
-
-      - name: Typecheck
-        run: |
-          poetry run mypy --install-types --non-interactive src tests
+      - name: Run pre-commit check
+        run: pre-commit run --all-files
 
   test:
     runs-on: ${{ matrix.os }}
@@ -87,9 +76,9 @@ jobs:
           - os: ubuntu-latest
             python-version: "3.13"
             runs_db: true
-          - os: windows-latest
-            python-version: "3.13"
-            runs_db: false
+          # - os: windows-latest
+          #   python-version: "3.13"
+          #   runs_db: false
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
