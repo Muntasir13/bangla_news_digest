@@ -18,10 +18,10 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            python-version: "3.13"
+            python_version: "3.13"
             runs_db: true
           # - os: windows-latest
-          #   python-version: "3.13"
+          #   python_version: "3.13"
           #   runs_db: false
     steps:
       - name: Check out repository
@@ -31,21 +31,21 @@ jobs:
         id: setup-python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ matrix.python_version }}
 
       - name: Load cached venv
         id: cached-poetry-dependencies
         uses: actions/cache@v4
         with:
           path: .venv
-          key: venv-${{ runner.os }}-py${{ matrix.python-version }}-${{ hashFiles('poetry.lock') }}
+          key: venv-${{ runner.os }}-py${{ matrix.python_version }}-${{ hashFiles('poetry.lock') }}
 
       - name: Load cached .local
         id: cached-dotlocal
         uses: actions/cache@v4
         with:
           path: ~/.local
-          key: dotlocal-${{ runner.os }}-py${{ matrix.python-version }}
+          key: dotlocal-${{ runner.os }}-py${{ matrix.python_version }}
 
       - name: Install Python poetry
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
@@ -74,7 +74,7 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            python-version: "3.13"
+            python_version: "3.13"
             runs_db: true
           # - os: windows-latest
           #   python-version: "3.13"
@@ -87,7 +87,7 @@ jobs:
         id: setup-python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ matrix.python_version }}
 
       - name: Prepare environment (local action)
         uses: ./.github/actions/install-env
@@ -99,7 +99,7 @@ jobs:
       - name: Upload test artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: pytest-reports-${{ matrix.python-version }}
+          name: pytest-reports-${{ matrix.python_version }}
           path: reports/
 
   # integration:
