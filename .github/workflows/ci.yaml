@@ -65,7 +65,7 @@ jobs:
         run: source .venv/bin/activate
 
       - name: Run pre-commit check
-        run: pre-commit run --all-files
+        run: poetry run pre-commit run --all-files
 
   test:
     runs-on: ${{ matrix.os }}
