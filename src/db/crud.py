@@ -10,7 +10,7 @@ from sqlalchemy import update as sql_update
 
 # dialect helpers
 from sqlalchemy.dialects import postgresql as pg_dialects
-from sqlalchemy.engine import Engine
+from sqlalchemy.engine import Engine, CursorResult
 from sqlalchemy.orm import Session
 from sqlalchemy.sql._typing import _DMLTableArgument
 
@@ -102,33 +102,33 @@ def update_article_by_id(session: Session, article_id: str, updates: dict[str, A
     Update an article by id. Returns number of rows updated (0 or 1).
     """
     stmt = sql_update(NewsArticle).where(NewsArticle.id == article_id).values(**updates)
-    res = session.execute(stmt)
+    res = cast(CursorResult, session.execute(stmt))
     return res.rowcount or 0
 
 
 def update_article_by_url(session: Session, url: str, updates: dict[str, Any]) -> int:
     stmt = sql_update(NewsArticle).where(NewsArticle.url == url).values(**updates)
-    res = session.execute(stmt)
+    res = cast(CursorResult, session.execute(stmt))
     return res.rowcount or 0
 
 
 # ---------- Delete ----------
 def delete_article_by_id(session: Session, article_id: int) -> int:
     stmt = sql_delete(NewsArticle).where(NewsArticle.id == article_id)
-    res = session.execute(stmt)
+    res = cast(CursorResult, session.execute(stmt))
     return res.rowcount or 0
 
 
 def delete_article_by_url(session: Session, url: str) -> int:
     stmt = sql_delete(NewsArticle).where(NewsArticle.url == url)
-    res = session.execute(stmt)
+    res = cast(CursorResult, session.execute(stmt))
     return res.rowcount or 0
 
 
 def bulk_delete_by_source(session: Session, source: str) -> int:
     """Delete all articles from a source. Returns rows deleted."""
     stmt = sql_delete(NewsArticle).where(NewsArticle.source == source)
-    res = session.execute(stmt)
+    res = cast(CursorResult, session.execute(stmt))
     return res.rowcount or 0
 
 
