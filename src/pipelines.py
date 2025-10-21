@@ -205,7 +205,7 @@ def data_extraction_pipeline(scraper: BaseScraper, vault_location: str, max_retr
             news_cat=news_cat,
             vault_location=vault_location,
         )
-        compiled_data += extract_from_unscraped(scraper=scraper, vault_location=vault_location)
+        compiled_data += extract_from_unscraped(scraper=scraper, vault_location=vault_location, max_retries=max_retries)
         del news_links  # destroying variable to save resource
     return compiled_data
 
