@@ -17,10 +17,17 @@ from src.db import ensure_tables, get_engine, save_scraped_items
 from src.news_scrapers import BaseScraper, ScraperEnum
 from src.pipelines import (
     data_extraction_pipeline,
+    remove_similar_news,
     separate_into_categories,
     sort_by_timestamp,
 )
-from src.utils import save_processsed_data, save_raw_data, send_email
+from src.utils import (
+    find_similar_sentences,
+    get_translation,
+    save_processsed_data,
+    save_raw_data,
+    send_email,
+)
 from src.webdriver_bridge import WebDriverAdapter, load_webdriver
 
 app = generate_celery_app()
@@ -113,18 +120,28 @@ def main(cfg: ProjectConfig) -> None:
     logger.info("News extraction completed.")
     logger.info(f"All news data compiled. Total {len(compiled_data)} news found.")
 
+    save_raw_data(
+        data=compiled_data,
+        save_location=cfg.output_location.raw,
+        filename="bangla_news_digest.json",
+    )
+    logger.info(f"Raw Data saved at {cfg.output_location.raw}")
+
+    # TODO: Need to remove news similar to previously scraped ones
+    compiled_data = remove_similar_news(
+        news_list=compiled_data,
+        similar_news_dict=find_similar_sentences(
+            {str(news["id"]): "। ".join(get_translation(list(news["title"]) + news["summary_points"][0].split("।"))) for news in compiled_data}
+        ),
+        id_to_date={str(news["id"]): str(news["scraped_at"]) for news in compiled_data},
+    )
+    logger.info(f"Removed similar news. {len(compiled_data)} best valid news found")
+
     cat_separated_data = separate_into_categories(compiled_data=compiled_data)
     logger.info("News data separated into categories")
 
     cat_separated_data = sort_by_timestamp(cat_separated_data=cat_separated_data)
     logger.info("News data separated into categories")
-
-    save_raw_data(
-        data=cat_separated_data,
-        save_location=cfg.output_location.raw,
-        filename="bangla_news_digest.json",
-    )
-    logger.info(f"Raw Data saved at {cfg.output_location.raw}")
 
     save_processsed_data(
         data=cat_separated_data,

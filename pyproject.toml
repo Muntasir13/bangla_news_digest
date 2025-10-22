@@ -6,7 +6,7 @@ authors = [
     {name = "Muntasir Mohammad"}
 ]
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.13,<3.15"
 dependencies = [
     "selenium (>=4.35.0,<5.0.0)",
     "undetected-chromedriver (>=3.5.5,<4.0.0)",
@@ -21,6 +21,11 @@ dependencies = [
     "docxtpl (>=0.20.1,<0.21.0)",
     "webdriver-manager (>=4.0.2,<5.0.0)",
     "celery[auth,librabbitmq,redis] (>=5.5.3,<6.0.0)",
+    "torch (>=2.9.0,<3.0.0)",
+    "torchvision (>=0.24.0,<0.25.0)",
+    "sentence-transformers (>=5.1.1,<6.0.0)",
+    "transformers (>=4.57.1,<5.0.0)",
+    "sentencepiece (>=0.2.1,<0.3.0)",
 ]
 
 
@@ -67,7 +72,7 @@ exclude = [".git", "__pycache__", "venv"]
 [tool.mypy]
 strict = true
 disallow_untyped_defs = true
-disable_error_code = ["type-arg"]
+disable_error_code = ["type-arg", "redundant-cast"]
 
 [[tool.mypy.overrides]]
 module = ["docxtpl.*", "undetected_chromedriver.*", "sklearn.*"]

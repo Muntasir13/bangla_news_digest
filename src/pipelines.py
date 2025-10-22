@@ -238,21 +238,24 @@ def sort_by_timestamp(cat_separated_data: dict[str, list[dict[str, str | list[st
 
 
 def remove_similar_news(
-    news_list: list[dict[str, str]], similar_news_dict: dict[str, dict[str, str]], id_to_date: dict[str, str]
-) -> list[dict[str, str]]:
+    news_list: list[dict[str, str | list[str]]], similar_news_dict: dict[str, dict[str, str]], id_to_date: dict[str, str]
+) -> list[dict[str, str | list[str]]]:
     """Keep only one instance of similar news
 
     Args:
-        news_list (list[dict[str, str]]): today's scraped news list
+        news_list (list[dict[str, str | list[str]]]): today's scraped news list
         similar_news_dict (dict[str, dict[str, str]]): the news title list arranged based on similarity (found from model output)
         id_to_date (dict[str, str]): key-value pair of id and published date of news
 
     Returns:
-        list[dict[str, str]]: Reduced compiled news data
+        list[dict[str, str | list[str]]]: Reduced compiled news data
     """
     id_to_news = {news["id"]: news for news in news_list}
     reduced_news_list = []
     for sent_list in similar_news_dict:
+        # At first, we extract and sort the dates of each similar news list in ascending order.
+        # We then check whether date_list has previous dates or not.
+        # If found, it proves that similar news were collected before. We then skip the entire similar news list
         date_list = [id_to_date[id] for id in similar_news_dict[sent_list]]
         if datetime.fromisoformat(sorted(date_list)[0]) < datetime.today().replace(hour=0, minute=0, second=0):
             continue
